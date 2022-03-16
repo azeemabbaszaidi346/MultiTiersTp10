@@ -1,4 +1,5 @@
 ﻿using BusinessAccessLayer;
+using CommanLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using multitiermvc.Models;
@@ -17,7 +18,6 @@ namespace multitiermvc.Controllers
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            business = new BLEmployeesBusiness();
         }
 
         public IActionResult Index()
@@ -25,16 +25,48 @@ namespace multitiermvc.Controllers
             var emp = business.GetEmployees();
             return View(emp);
         }
-
-        public IActionResult Privacy()
+        public IActionResult Create()
         {
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Create(Employees employee)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var result = business.createEmployees(employee);
+            if (result)
+            {
+                return RedirectToAction("index");
+            }
+            else
+            {
+                ModelState.AddModelError("error", "Error in create employee !");
+                return View(employee);
+            }
+
+
+        }
+
+      
+        public IActionResult Update(int id)
+        {
+            var user = business.GetEmployeesbyId(id);
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult Update(Employees employee)
+        {
+
+            var user = business.UpdateeEmployees(employee);
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            business.DeleteEmployee(id);
+            return RedirectToAction("Index");
+
         }
     }
-}
+ }
